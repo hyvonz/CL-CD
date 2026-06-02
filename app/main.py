@@ -1,6 +1,11 @@
+# main.py is the main frame of the website
+# exposing necessary api for pytesting
+
 from flask import Flask, jsonify
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 
 # Gain setting from enviroment, if fails set development

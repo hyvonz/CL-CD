@@ -43,4 +43,4 @@ GET /version: 获取当前版本号。
 ### 5. 环境变量配置
 
 应用支持以下环境变量：
-APP_ENV: 设置运行环境名称（如 Testing / Production）。
+APP_ENV: 设置运行环境名称（如 Testing / Production）。Env环境变量存储在`.env`文件中，使用dotenv读取。

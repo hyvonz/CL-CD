@@ -1,0 +1,26 @@
+#!/bin/bash
+
+GREEN='\033[0;32m'
+NC='\033[0m'
+
+echo -e "${GREEN}=== 开发者辅助工具 ===${NC}"
+
+case "$1" in
+    "test")
+    echo "正在运行测试..."
+    pytest
+    ;;
+    "dev")
+    echo "正在启动开发环境..."
+    export APP_ENV=test
+    python3 app/main.py
+    ;;
+    "prod")
+    echo "正在模拟生产环境..."
+    export APP_ENV=production
+    python3 app/main.py
+    ;;
+    *)
+    echo "用法: ./run.sh [test|dev|prod]"
+    ;;
+esac
