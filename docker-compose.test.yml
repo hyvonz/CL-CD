@@ -2,8 +2,33 @@ services:
   cicd-demo-test:
     image: cicd-demo:${IMAGE_TAG:-latest}
     container_name: cicd-demo-test
+    labels:
+      ci.project: container-cicd-demo
+      ci.environment: test
     environment:
       APP_ENV: Testing
+      APP_PORT: "5000"
     ports:
       - "18080:5000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=2)"
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    networks:
+      - cicd-test
     restart: unless-stopped
+
+networks:
+  cicd-test:
+    name: cicd-test-network
