@@ -1,9 +1,0 @@
-services:
-  cicd-demo-test:
-    image: cicd-demo:${IMAGE_TAG:-latest}
-    container_name: cicd-demo-test
-    environment:
-      APP_ENV: Testing
-    ports:
-      - "18080:5000"
-    restart: unless-stopped
