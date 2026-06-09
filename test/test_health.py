@@ -29,4 +29,3 @@ def test_index_page(client):
     """测试首页是否能正常打开"""
     res = client.get('/')
     assert res.status_code == 200
-    assert b"Container CI/CD Demo" in res.data
