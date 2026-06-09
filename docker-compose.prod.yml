@@ -1,0 +1,9 @@
+services:
+  cicd-demo-prod:
+    image: cicd-demo:${IMAGE_TAG:-latest}
+    container_name: cicd-demo-prod
+    environment:
+      APP_ENV: Production
+    ports:
+      - "28080:5000"
+    restart: unless-stopped
