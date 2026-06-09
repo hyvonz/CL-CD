@@ -1,11 +1,19 @@
 pipeline {
     agent any
 
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
     environment {
         IMAGE_NAME = 'cicd-demo'
         IMAGE_TAG = "${env.BUILD_NUMBER}"
         TEST_URL = 'http://localhost:18080/health'
         PROD_URL = 'http://localhost:28080/health'
+        SMOKE_RETRIES = '10'
+        SMOKE_INTERVAL = '2'
     }
 
     stages {
@@ -15,43 +23,49 @@ pipeline {
             }
         }
 
+        stage('Prepare') {
+            steps {
+                sh 'chmod +x scripts/ci/*.sh'
+                sh './scripts/ci/check_toolchain.sh'
+            }
+        }
+
         stage('Unit Test') {
             steps {
-                sh 'python3 -m pip install --user -r app/requirements.txt'
-                sh 'python3 -m pytest test'
+                sh './scripts/ci/run_unit_tests.sh'
             }
         }
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:latest .'
+                sh './scripts/ci/build_image.sh'
             }
         }
 
         stage('Deploy to Test') {
             steps {
-                sh 'IMAGE_TAG=${IMAGE_TAG} docker compose -f docker-compose.test.yml up -d'
+                sh './scripts/ci/deploy_environment.sh test'
             }
         }
 
         stage('Smoke Test') {
             steps {
-                sh 'for i in 1 2 3 4 5; do curl --noproxy "*" -fsS ${TEST_URL} && exit 0; sleep 2; done; exit 1'
+                sh './scripts/ci/smoke_test.sh test'
             }
         }
 
         stage('Deploy to Production') {
             steps {
                 input message: 'Smoke test passed. Deploy to production?'
-                sh 'IMAGE_TAG=${IMAGE_TAG} docker compose -f docker-compose.prod.yml up -d'
-                sh 'for i in 1 2 3 4 5; do curl --noproxy "*" -fsS ${PROD_URL} && exit 0; sleep 2; done; exit 1'
+                sh './scripts/ci/deploy_environment.sh prod'
+                sh './scripts/ci/smoke_test.sh prod'
             }
         }
     }
 
     post {
         always {
-            sh 'docker ps --filter "name=cicd-demo"'
+            sh './scripts/ci/show_deployment_state.sh || true'
         }
     }
 }
