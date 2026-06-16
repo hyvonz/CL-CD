@@ -10,7 +10,7 @@ app = Flask(__name__)
 
 # Gain setting from enviroment, if fails set development
 APP_ENV = os.getenv('APP_ENV', 'development')
-APP_VERSION = "v1.0.0"
+APP_VERSION = "v1.0.1"
 
 # Gain Title from env, if fails set My CI/CD App
 APP_TITLE = os.getenv('APP_TITLE', 'My CI/CD App') 
